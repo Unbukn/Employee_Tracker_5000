@@ -1,0 +1,35 @@
+{
+  "name": "employee_tracker_5000",
+  "version": "1.0.0",
+  "description": "Back end employee tracking tool created with Node.js Express.js and Mysql.",
+  "main": "index.js",
+  "scripts": {
+    "test": "n/a"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Unbukn/Employee_Tracker_5000.git"
+  },
+  "keywords": [
+    "command",
+    "line",
+    "app",
+    "employee",
+    "tracking",
+    "system",
+    "trilogy",
+    "2u",
+    "homework"
+  ],
+  "author": "James Hudgins",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Unbukn/Employee_Tracker_5000/issues"
+  },
+  "homepage": "https://github.com/Unbukn/Employee_Tracker_5000#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
+}
