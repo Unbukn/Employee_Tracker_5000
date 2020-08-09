@@ -72,7 +72,7 @@ function mainTasker() {
                             newRole();
                             break;
                         case "Add a new employee":
-                            console.log("Case 3");
+                            newEmployee();
                             break;
                         case "Forget it, I changed my mind (Go back).":
                             console.log("Case 4")
@@ -158,10 +158,75 @@ function mainTasker() {
                     if (err) throw err;
                     console.log('Added ' + roleTitle + ' into row ' + data.insertId)
                     mainTasker();
-                })
+                });
             })
         })
     }
+
+    function newEmployee() {
+        // placeholder arrays for prompts
+        let employeeList = [];
+        let roleList = [];
+        connection.query(`SELECT * FROM role`, function (err, data) {
+            if (err) throw err;
+            for (let i = 0; i < data.length; i++) {
+                roleList.push(data[i].title);
+            }
+        });
+        connection.query(`SELECT * FROM employee`, function (err, data){
+            if (err) throw err;
+            for (let i = 0; i < data.length; i++) {
+                employeeList.push(data[i].first_name);
+            }
+        });
+
+        inquirer.prompt([
+            {
+                name: "firstName",
+                message: "what is the employees first name?",
+                type: "input",
+                validate: userEntry => {
+                    // if user response is not nothing
+                    if(userEntry !== ""){
+                        return true;
+                    }
+                    return "You have to enter some information!"
+                },
+            },
+            {
+                name: "lastName",
+                message: "what is the employees last name?",
+                type: "input",
+                validate: userEntry => {
+                    // if user response is not nothing
+                    if(userEntry !== ""){
+                        return true;
+                    }
+                    return "You have to enter some information!"
+                },
+            },
+            {
+                name: "empRole",
+                message: "What is their role?",
+                type: "list",
+                choices: roleList
+            }            
+        ]).then( function ({firstName, lastName, empRole }) {
+        // set the id
+        let index = roleList.indexOf(empRole)
+        // add one the the returned index (SQL doesn't start at 0)
+        index += 1;
+        connection.query(`INSERT INTO employee (first_name, last_name, role_id) VALUES ('${firstName}', '${lastName}', ${index})`, function (err, data) {
+            if (err) throw err;
+            console.log('Added ' + lastName + ' ' + lastName + ' into row ' + data.insertId)
+            mainTasker();
+        });
+
+    });
+        
+    }
+
+
         
 };
 
