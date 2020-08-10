@@ -4,6 +4,10 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const validator = require('validator');
 
+function underConstructionMsg() {
+    console.log("That function is currently under construction check https://github.com/Unbukn/Employee_Tracker_5000 for updates or to submit a bug.")
+}
+
 // create connection to the AWS RDS database **********************************
 var connection = mysql.createConnection({
   host: "database-1.cafvzihsfdz1.us-west-2.rds.amazonaws.com",
@@ -165,18 +169,12 @@ function mainTasker() {
 
     function newEmployee() {
         // placeholder arrays for prompts
-        let employeeList = [];
+
         let roleList = [];
         connection.query(`SELECT * FROM role`, function (err, data) {
             if (err) throw err;
             for (let i = 0; i < data.length; i++) {
                 roleList.push(data[i].title);
-            }
-        });
-        connection.query(`SELECT * FROM employee`, function (err, data){
-            if (err) throw err;
-            for (let i = 0; i < data.length; i++) {
-                employeeList.push(data[i].first_name);
             }
         });
 
@@ -210,13 +208,24 @@ function mainTasker() {
                 message: "What is their role?",
                 type: "list",
                 choices: roleList
-            }            
-        ]).then( function ({firstName, lastName, empRole }) {
-        // set the id
+            },
+            {
+                name: "isMngr",
+                message: "Is the employee a manager?",
+                type: "confirm",
+                default: false
+            }             
+        ]).then( function ({firstName, lastName, empRole, isMngr}) {
+        if (isMngr != true){
+            let isMngr = null
+        } else {
+            // give the user the next manager id
+        }
+            // set the id
         let index = roleList.indexOf(empRole)
         // add one the the returned index (SQL doesn't start at 0)
         index += 1;
-        connection.query(`INSERT INTO employee (first_name, last_name, role_id) VALUES ('${firstName}', '${lastName}', ${index})`, function (err, data) {
+        connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${firstName}', '${lastName}', '${index}', ${isMngr})`, function (err, data) {
             if (err) throw err;
             console.log('Added ' + lastName + ' ' + lastName + ' into row ' + data.insertId)
             mainTasker();
@@ -225,6 +234,103 @@ function mainTasker() {
     });
         
     }
+
+    function view() {
+        inquirer.prompt(
+            {
+                name: "db",
+                message: "What do you want to view?",
+                type: "list",
+                choices: ["department", "role", "employee"],
+            }
+        ).then(function ({ db }) {
+            connection.query(`SELECT * FROM ${db}`, function (err, data) {
+                if (err) throw err;
+                console.table(data)
+                mainTasker();
+            })
+        })
+    }
+
+    function update(){
+        inquirer.prompt({
+            name: "updateType",
+            message: "What do you want to update?",
+            type: "list",
+            choices: ["Change employee role", "Promote to manager", "Demote from manager"]
+        }).then(function ({updateType}) {
+            switch (updateType) {
+                case "Change employee role":
+                    updateRole();
+                    break;
+                case "Promote to manager":
+                    underConstructionMsg();
+                    update();
+                    break;
+
+                case "Demote from manager":
+                    underConstructionMsg();
+                    update();
+                    break;
+            }
+        })
+    }
+    
+    function updateRole(){
+        // get list of employees        
+        let crntEmply = [];
+        // get list of current roles
+        let roleList = [];
+
+        connection.query(`SELECT * FROM employee`, function (err, data) {
+                if (err) throw err;
+                for (let i = 0; i < data.length; i++) {
+                    crntEmply.push(data[i].first_name);
+                }
+            
+            connection.query(`SELECT * FROM role`, function (err, data) {
+                if (err) throw err;
+                for (let i = 0; i < data.length; i++) {
+                    roleList.push(data[i].title);
+                }            
+        
+                inquirer.prompt([
+                    {
+                        name: "employeeSelected",
+                        message: "Which employee is changing roles?",
+                        type: "list",
+                        choices: crntEmply
+                    },
+                    {
+                        name: "newRole",
+                        message: "select the new role",
+                        type: "list",
+                        choices: roleList
+                    }            
+                ]).then(function ({ employeeSelected, newRole }) {
+                    // update the employee role
+                    connection.query(`UPDATE employee SET role_id = ${roleList.indexOf(newRole) + 1} WHERE id = ${crntEmply.indexOf(employeeSelected) + 1}`, function (err, data) {
+                        if (err) throw err;
+                        // return back to the update screen
+                        update()
+                    });
+                
+                });
+            });
+        });
+    
+
+
+
+        
+        
+
+
+
+    }
+
+
+
 
 
         
