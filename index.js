@@ -241,14 +241,22 @@ function mainTasker() {
                 name: "db",
                 message: "What do you want to view?",
                 type: "list",
-                choices: ["department", "role", "employee"],
+                choices: ["department", "role", "employee", "I'm done viewing (Go back)"],
             }
         ).then(function ({ db }) {
-            connection.query(`SELECT * FROM ${db}`, function (err, data) {
-                if (err) throw err;
-                console.table(data)
-                mainTasker();
-            })
+            switch (db) {
+                case "I'm done viewing (Go back)":
+                    mainTasker();
+                    break;
+                
+                default:
+                    connection.query(`SELECT * FROM ${db}`, function (err, data) {
+                        if (err) throw err;
+                        console.table(data)
+                        view();
+                    })
+                    break;
+            }
         })
     }
 
@@ -257,7 +265,7 @@ function mainTasker() {
             name: "updateType",
             message: "What do you want to update?",
             type: "list",
-            choices: ["Change employee role", "Promote to manager", "Demote from manager"]
+            choices: ["Change employee role", "Promote to manager", "Demote from manager", "Forget it, I changed my mind (Go back)."]
         }).then(function ({updateType}) {
             switch (updateType) {
                 case "Change employee role":
@@ -272,10 +280,12 @@ function mainTasker() {
                     underConstructionMsg();
                     update();
                     break;
+                case "Forget it, I changed my mind (Go back).":
+                mainTasker();
+                    break;                    
             }
         })
     }
-    
     function updateRole(){
         // get list of employees        
         let crntEmply = [];
