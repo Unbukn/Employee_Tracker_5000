@@ -225,7 +225,7 @@ function mainTasker() {
         let index = roleList.indexOf(empRole)
         // add one the the returned index (SQL doesn't start at 0)
         index += 1;
-        connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${firstName}', '${lastName}', '${index}', ${isMngr})`, function (err, data) {
+        connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_if) VALUES ('${firstName}', '${lastName}', '${index}', ${isMngr})`, function (err, data) {
             if (err) throw err;
             console.log('Added ' + lastName + ' ' + lastName + ' into row ' + data.insertId)
             mainTasker();
